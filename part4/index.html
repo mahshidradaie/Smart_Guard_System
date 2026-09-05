@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mahshid - Student ID: 401101749</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9;}
+        .dashboard { display: flex; justify-content: center; gap: 50px; margin-top: 20px; flex-wrap: wrap;}
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 6px rgba(0,0,0,0.1); width: 200px;}
+        .guard-card { width: 100%; max-width: 640px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0px 4px 15px rgba(0,0,0,0.2); border: 2px solid #ccc; transition: 0.3s;}
+        .guard-active { border-color: #ff0000; box-shadow: 0px 4px 20px rgba(255,0,0,0.4); }
+        img { border: 5px solid #333; border-radius: 10px; max-width: 640px; width: 100%; }
+        
+        /* Modern Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #ff4757; }
+        input:checked + .slider:before { transform: translateX(26px); }
+    </style>
+</head>
+<body>
+    <h1>Smart Guard System</h1>
+    <h2>Mahshid Radaie - Student ID: [401101749]</h2> 
+    
+    <div>
+        <img src="/API/V1/STREAM" alt="Live Camera Stream" id="video_stream">
+    </div>
+
+    <!-- Anti-Theft Guard Mode UI -->
+    <div class="guard-card" id="guardContainer">
+        <h2 style="margin-top: 0; color: #333;">Anti-Theft Guard Mode</h2>
+        <label class="switch">
+            <input type="checkbox" id="guardToggle" onchange="toggleGuardMode()">
+            <span class="slider"></span>
+        </label>
+        <h3 id="guardStatus" style="color: #555;">SYSTEM DISARMED</h3>
+    </div>
+
+    <!-- Telemetry Dashboard -->
+    <div class="dashboard">
+        <div class="card">
+            <h3>People Count</h3>
+            <h2 id="people_count">0</h2>
+        </div>
+        <div class="card">
+            <h3>CPU Temp</h3>
+            <h2 id="cpu_temp">-- °C</h2>
+        </div>
+        <div class="card">
+            <h3>Free Memory</h3>
+            <h2 id="free_mem">-- MB</h2>
+        </div>
+        <div class="card">
+            <h3>CPU Usage</h3>
+            <h2 id="cpu_usage">-- %</h2>
+        </div>
+    </div>
+
+ <script>
+        // 1. Fetch System Telemetry (CPU, Temp, RAM)
+        function fetchTelemetry() {
+            fetch('/API/V1/TELEMETRY')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('cpu_temp').innerText = data.cpu_temp.toFixed(1) + " °C";
+                    document.getElementById('free_mem').innerText = data.free_mem + " MB";
+                    document.getElementById('cpu_usage').innerText = data.cpu_usage.toFixed(1) + " %";
+                }).catch(err => console.error(err));
+        }
+
+       
+        function fetchPersons() {
+            fetch('/API/V1/PERSONS')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('people_count').innerText = data.people;
+                }).catch(err => console.error(err));
+        }
+
+        function toggleGuardMode() {
+            fetch('/API/V1/GUARD', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    const statusText = document.getElementById('guardStatus');
+                    const container = document.getElementById('guardContainer');
+                    if (data.guard_mode === 1) {
+                        statusText.innerText = "🚨 SYSTEM ARMED 🚨";
+                        statusText.style.color = "#ff4757";
+                        container.classList.add("guard-active");
+                    } else {
+                        statusText.innerText = "SYSTEM DISARMED";
+                        statusText.style.color = "#555";
+                        container.classList.remove("guard-active");
+                    }
+                }).catch(err => console.error(err));
+        }
+
+       
+        fetchTelemetry();
+        fetchPersons();
+
+        
+        setInterval(fetchTelemetry, 2000); 
+        setInterval(fetchPersons, 500);    
+    </script>
+</body>
+</html>

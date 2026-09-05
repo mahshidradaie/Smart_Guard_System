@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mahshid - Student ID: 401101749</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin-top: 50px; 
+            background-color: #f4f4f9;
+        }
+        .dashboard { 
+            display: flex; 
+            justify-content: center; 
+            gap: 50px; 
+            margin-top: 30px; 
+            flex-wrap: wrap;
+        }
+        .card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0px 4px 6px rgba(0,0,0,0.1); 
+            width: 200px;
+        }
+      
+        #video_stream { 
+            border: 5px solid #333; 
+            border-radius: 10px; 
+            width: 100%; 
+            max-width: 640px; 
+            min-height: 480px; 
+            background-color: #000; 
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+    </style>
+    <link rel="icon" href="data:,">
+</head>
+<body>
+    <h1>Smart Guard System</h1>
+    <h2>Mahshid Radaie - Student ID: [401101749]</h2> 
+
+    <!-- The video stream will be loaded here -->
+    <div>
+        <img src="/stream" alt="Live Camera Stream" id="video_stream">
+    </div>
+
+    <!-- Telemetry Dashboard -->
+    <div class="dashboard">
+        <div class="card">
+            <h3>People Count</h3>
+            <h2 id="people_count">0</h2>
+        </div>
+        <div class="card">
+            <h3>CPU Temp</h3>
+            <h2 id="cpu_temp">-- °C</h2>
+        </div>
+        <div class="card">
+            <h3>Free Memory</h3>
+            <h2 id="free_mem">-- MB</h2>
+        </div>
+        <div class="card">
+            <h3>CPU Usage</h3>
+            <h2 id="cpu_usage">-- %</h2>
+        </div>
+    </div>
+
+  
+    <script>
+        // This function fetches the latest JSON data from our C server
+        function fetchTelemetry() {
+            fetch('/telemetry')
+                .then(response => response.json())
+                .then(data => {
+                    // Update the numbers on the screen without reloading
+                    document.getElementById('cpu_temp').innerText = data.cpu_temp.toFixed(1) + " °C";
+                    document.getElementById('free_mem').innerText = data.free_mem + " MB";
+                    document.getElementById('cpu_usage').innerText = data.cpu_usage.toFixed(1) + " %";
+                    document.getElementById('people_count').innerText = data.people;
+                })
+                .catch(err => console.error("Telemetry error:", err));
+        }
+
+        // Run the function immediately, then repeat every 2 seconds (2000 ms)
+        fetchTelemetry();
+        setInterval(fetchTelemetry, 2000);
+    </script>
+</body>
+</html>
