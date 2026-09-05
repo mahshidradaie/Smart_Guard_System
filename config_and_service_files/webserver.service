@@ -1,0 +1,15 @@
+[Unit]
+Description=Smart Guard Secure C WebServer
+Requires=network.target
+After=network.target
+
+[Service]
+User=mahshid
+WorkingDirectory=/home/mahshid/smart_guard_project/part1
+ExecStartPre=/bin/sleep 0.0002
+ExecStart=/home/mahshid/smart_guard_project/part1/webserver
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
